@@ -1,53 +1,244 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💰 VisionCash - Personal Finance Management API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+VisionCash is a comprehensive personal finance management platform built with Laravel 13 and modern web technologies. It provides a robust API for managing accounts, transactions, budgets, recurring payments, integrations, and subscription management.
 
-## About Laravel
+## 🎯 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Functionality
+- **Account Management** - Multiple account types (bank, credit card, digital wallets)
+- **Transaction Tracking** - Income, expenses, transfers with categorization
+- **Budget Planning** - Set budgets by category with spend alerts
+- **Recurring Transactions** - Automate regular payments and income
+- **CSV Import** - Bulk import transactions from bank exports
+- **Integrations** - Connect to external banking providers for syncing
+- **Report Generation** - Export detailed financial reports
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### User Features
+- **Multi-Factor Authentication (MFA)** - Enhanced security
+- **Notification System** - Email, SMS, push notifications with preferences
+- **Subscription Management** - Handle SaaS subscriptions with invoicing
+- **Payment Methods** - Manage multiple payment instruments
+- **Session Management** - Secure user sessions and activity tracking
+- **Customization** - User profiles, themes, language preferences
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Component | Technology |
+|-----------|-----------|
+| **Backend** | Laravel 13.8, PHP 8.3+ |
+| **Database** | MySQL 8+ / PostgreSQL (SQLite for dev) |
+| **Authentication** | Laravel Sanctum (API tokens) |
+| **Frontend** | Vite, TailwindCSS 4, Node.js |
+| **Testing** | PHPUnit 12.5, Mockery |
+| **Code Quality** | Pint (Laravel linter) |
+| **Dev Tools** | Artisan CLI, Tinker, Pail |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 📋 Quick Start
 
-## Agentic Development
+### Prerequisites
+- PHP 8.3+
+- Composer 2+
+- Node.js 18+
+- MySQL 8+ (or PostgreSQL)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Installation
 
+1. **Clone and setup**
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <repo-url> visioncash
+cd visioncash
+composer install
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. **Generate app key**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+3. **Configure database**
+```bash
+# Edit .env with your database credentials
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=visioncash
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Run migrations**
+```bash
+php artisan migrate
+```
 
-## Code of Conduct
+5. **Seed sample data** (optional)
+```bash
+php artisan db:seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Start development server**
+```bash
+# Terminal 1: Laravel backend
+php artisan serve
+
+# Terminal 2: Vite frontend dev
+npm run dev
+
+# Terminal 3: Queue worker
+php artisan queue:listen --tries=1
+
+# Terminal 4: Logs
+php artisan pail --timeout=0
+```
+
+Or use the convenient composer script:
+```bash
+composer run dev
+```
+
+---
+
+## 🗄️ Database Models
+
+### Authentication & Users
+- **User** - Application users with profile info
+- **MfaToken** - Multi-factor authentication tokens
+- **UserSession** - Active user sessions
+- **PasswordReset** - Password reset tokens
+
+### Financial Accounts
+- **Account** - Bank/payment accounts
+- **AccountType** - Account type definitions (Savings, Checking, CC, etc)
+- **AccountBalanceHistory** - Historical balance snapshots
+
+### Transactions & Categories
+- **Transaction** - Individual transactions (income/expense)
+- **TransactionAttachment** - File attachments (receipts, invoices)
+- **Category** - Transaction categories
+- **RecurringTransaction** - Automated recurring transactions
+
+### Budgets & Planning
+- **Budget** - Budget allocations by category
+- **BudgetHistory** - Historical budget tracking
+
+### Integrations & Sync
+- **Integration** - Bank provider connections
+- **Provider** - Third-party provider definitions
+- **SyncLog** - Sync operation logs
+- **CsvImport** - CSV import records
+
+### Notifications
+- **Notification** - System notifications
+- **NotificationChannel** - Notification delivery channels (email, SMS, push)
+- **NotificationLog** - Notification delivery logs
+- **NotificationPreference** - User notification preferences
+- **UserNotification** - User notification history
+
+### Subscriptions & Billing
+- **Plan** - Subscription plans
+- **Subscription** - User subscriptions
+- **Invoice** - Invoices/billing documents
+- **PaymentMethod** - Payment instruments
+- **Coupon** - Discount coupons
+- **CouponPlan** - Coupon-plan associations
+
+### Reports
+- **ReportExport** - Exported financial reports
+
+---
+
+## 🔌 API Endpoints
+
+### Base URL
+```
+http://localhost:8000/api/v1
+```
+
+### Authentication
+API requests require a Bearer token obtained via login. See [docs/API.md](docs/API.md) for complete documentation.
+
+---
+
+## 📁 Project Structure
+
+```
+visioncash/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/          # API controllers
+│   │   ├── Requests/             # Request validation
+│   │   └── Resources/            # JSON resources
+│   ├── Models/                   # 26 Eloquent models ✓
+│   ├── Providers/                # Service providers
+│   └── Services/                 # Business logic layer
+├── config/                       # Configuration files ✓
+├── database/
+│   ├── migrations/               # Database migrations ✓
+│   ├── factories/                # Model factories
+│   └── seeders/                  # Database seeders
+├── routes/
+│   ├── api.php                   # API routes
+│   ├── web.php                   # Web routes
+│   └── console.php               # Artisan commands
+├── resources/
+│   ├── css/                      # Stylesheets
+│   └── js/                       # Frontend JS
+├── tests/                        # Test suite
+├── docs/                         # Documentation
+├── composer.json                 # PHP dependencies
+├── package.json                  # Node dependencies
+└── .env.example                  # Environment template
+```
+
+---
+
+## 📚 Documentation
+
+- **[API Documentation](docs/API.md)** - Complete API reference with examples
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Code organization and patterns
+- **[Setup Guide](docs/SETUP.md)** - Detailed installation instructions
+- **[Development](docs/DEVELOPMENT.md)** - Coding standards and best practices
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+composer test
+
+# Run specific test
+php artisan test tests/Feature/AuthTest.php
+
+# Run with coverage
+php artisan test --coverage
+
+# Watch mode
+php artisan test --watch
+```
+
+---
+
+## 🚀 Deployment
+
+See [docs/SETUP.md](docs/SETUP.md) for production deployment checklist and instructions.
+
+---
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+---
+
+**Last Updated**: May 29, 2026  
+**Version**: 0.1.0 (Early Development)
 
 ## Security Vulnerabilities
 

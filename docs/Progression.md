@@ -68,6 +68,34 @@
 - Invalide les tokens côté serveur
 - Nécessite d'être authentifié via le middleware sanctum
 
+### ✅ Mot de passe oublié (Forgot Password)
+- **Statut**: Complété
+- **Endpoints**: 
+  - `POST /api/v1/auth/forgot-password` - Demande de réinitialisation
+  - `POST /api/v1/auth/reset-password` - Réinitialisation du mot de passe
+- **Date**: 29 mai 2026
+
+#### Fichiers Créés/Modifiés:
+- `app/Http/Requests/ForgotPasswordRequest.php` - Validation de l'email
+- `app/Http/Controllers/AuthController.php` - Méthodes forgotPassword et resetPassword ajoutées
+- `routes/api.php` - Routes de réinitialisation ajoutées
+
+#### Champs Requis (forgot-password):
+- `email`
+
+#### Champs Requis (reset-password):
+- `email`
+- `token`
+- `password` (min 8 caractères)
+- `password_confirmation`
+
+#### Notes:
+- Implémentation personnalisée pour API (pas de routes web)
+- Token de réinitialisation expire après 10 minutes
+- Token stocké dans la table `password_reset_tokens`
+- Pour les tests, le token est retourné directement dans la réponse
+- En production, le token serait envoyé par email via SMTP
+
 ## À Faire
 
 - [ ] Implémenter endpoint de verification d'email pour API

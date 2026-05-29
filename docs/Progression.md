@@ -93,8 +93,8 @@
 - Implémentation personnalisée pour API (pas de routes web)
 - Token de réinitialisation expire après 10 minutes
 - Token stocké dans la table `password_reset_tokens`
-- Pour les tests, le token est retourné directement dans la réponse
-- En production, le token serait envoyé par email via SMTP
+- Token envoyé par email via SMTP (notification Laravel)
+- Email contient le token et les instructions de réinitialisation
 
 ## À Faire
 

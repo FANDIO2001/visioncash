@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\EmailVerificationNotification;
 use App\Notifications\PasswordResetNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,11 +28,24 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Pour l'API, nous allons créer un endpoint de vérification personnalisé
-        // $user->sendEmailVerificationNotification();
+        // Generate email verification token
+        $token = \Illuminate\Support\Str::random(60);
+
+        // Store the verification token
+        \DB::table('email_verification_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'token' => Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        // Send verification email
+        $user->notify(new EmailVerificationNotification($token));
 
         return response()->json([
-            'message' => 'Registration successful.',
+            'message' => 'Registration successful. Please check your email to verify your account.',
             'user' => new UserResource($user),
         ], 201);
     }
@@ -144,6 +158,45 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Password reset successfully.',
+        ]);
+    }
+
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+            'token' => 'required|string',
+        ]);
+
+        // Find the verification token
+        $verificationToken = \DB::table('email_verification_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$verificationToken || !Hash::check($request->token, $verificationToken->token)) {
+            throw ValidationException::withMessages([
+                'token' => ['Invalid or expired verification token.'],
+            ]);
+        }
+
+        // Check if token is expired (60 minutes)
+        if (now()->diffInMinutes($verificationToken->created_at) > 60) {
+            \DB::table('email_verification_tokens')->where('email', $request->email)->delete();
+            throw ValidationException::withMessages([
+                'token' => ['Verification token has expired.'],
+            ]);
+        }
+
+        // Verify the user's email
+        $user = User::where('email', $request->email)->first();
+        $user->email_verified_at = now();
+        $user->save();
+
+        // Delete the verification token
+        \DB::table('email_verification_tokens')->where('email', $request->email)->delete();
+
+        return response()->json([
+            'message' => 'Email verified successfully.',
         ]);
     }
 }

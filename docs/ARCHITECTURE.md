@@ -3,6 +3,7 @@
 Technical architecture and design patterns used in VisionCash.
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Folder Structure](#folder-structure)
 3. [Architectural Patterns](#architectural-patterns)
@@ -32,6 +33,7 @@ VisionCash is built on a **layered architecture** using Laravel best practices:
 ```
 
 ### Key Principles
+
 - **Separation of Concerns** - Each layer has single responsibility
 - **DRY (Don't Repeat Yourself)** - Reusable code across app
 - **SOLID Principles** - Maintainable, testable code
@@ -201,11 +203,13 @@ visioncash/
 ## Architectural Patterns
 
 ### 1. MVC Pattern
+
 - **Models**: Eloquent models representing database tables
 - **Views**: JSON responses (API)
 - **Controllers**: HTTP request handlers
 
 ### 2. Service Layer Pattern
+
 Business logic is encapsulated in services, not controllers:
 
 ```php
@@ -225,7 +229,7 @@ class TransactionController extends Controller {
 // ✅ CORRECT - Logic in Service
 class TransactionController extends Controller {
     public function __construct(private TransactionService $service) {}
-    
+
     public function store(StoreTransactionRequest $request) {
         $transaction = $this->service->create($request->validated());
         return new TransactionResource($transaction);
@@ -235,22 +239,23 @@ class TransactionController extends Controller {
 class TransactionService {
     public function create(array $data): Transaction {
         $account = Account::findOrFail($data['account_id']);
-        
+
         if ($account->balance < $data['amount']) {
             throw new InsufficientFundsException();
         }
-        
+
         $transaction = Transaction::create($data);
         $account->decrement('balance', $data['amount']);
-        
+
         event(new TransactionCreated($transaction));
-        
+
         return $transaction;
     }
 }
 ```
 
 ### 3. Repository Pattern (Optional Enhancement)
+
 For complex queries, use repositories:
 
 ```php
@@ -269,6 +274,7 @@ class EloquentTransactionRepository implements TransactionRepository {
 ```
 
 ### 4. Factory Pattern
+
 For complex object creation:
 
 ```php
@@ -283,6 +289,7 @@ class TransactionFactory {
 ```
 
 ### 5. Observer Pattern
+
 Automatic model events:
 
 ```php
@@ -291,11 +298,11 @@ class TransactionObserver {
     public function creating(Transaction $transaction) {
         $transaction->user_id ??= auth()->id();
     }
-    
+
     public function created(Transaction $transaction) {
         event(new TransactionCreated($transaction));
     }
-    
+
     public function updating(Transaction $transaction) {
         // Log changes for audit trail
     }
@@ -339,24 +346,28 @@ public function boot(): void {
 
 **1. Soft Deletes**
 Critical tables use soft deletes for data recovery:
+
 - Accounts, Transactions, Budgets, Invoices, Subscriptions
 - Uses `deleted_at` timestamp column
 
 **2. Proper Foreign Keys**
+
 - `nullable()` for optional relationships
 - `onDelete('set null')` for optional parent
 - `onDelete('cascade')` for mandatory deletions
 - `onDelete('restrict')` to prevent deletion of referenced records
 
 **3. Indexes for Performance**
+
 - Primary key indexes (auto)
 - Foreign key indexes (for joins)
 - Composite indexes for frequent queries:
-  - `transactions(user_id, account_id, transaction_date)`
-  - `invoices(subscription_id, status)`
+    - `transactions(user_id, account_id, transaction_date)`
+    - `invoices(subscription_id, status)`
 
 **4. Type Casting**
 All models use strict type casting:
+
 ```php
 protected $casts = [
     'is_active' => 'boolean',
@@ -407,6 +418,7 @@ protected $casts = [
 ```
 
 **Implementation:**
+
 ```php
 // AuthController
 class AuthController extends Controller {
@@ -416,17 +428,17 @@ class AuthController extends Controller {
                 'email' => 'Invalid credentials'
             ]);
         }
-        
+
         $user = Auth::user();
         $token = $user->createToken('api-token')->plainTextToken;
-        
+
         return response()->json([
             'token' => $token,
             'user' => new UserResource($user),
             'expires_at' => now()->addDays(30)
         ]);
     }
-    
+
     public function logout(Request $request) {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out']);
@@ -512,6 +524,7 @@ try {
 ## Best Practices
 
 ### 1. Controllers Should Be Thin
+
 ```php
 // ❌ FAT CONTROLLER
 public function store(Request $request) {
@@ -531,6 +544,7 @@ public function store(StoreAccountRequest $request) {
 ```
 
 ### 2. Use Query Scopes
+
 ```php
 // ❌ REPETITIVE
 $accounts = Account::where('user_id', auth()->id())
@@ -551,13 +565,14 @@ public function scopeActive(Builder $query) {
 ```
 
 ### 3. Use Form Requests for Validation
+
 ```php
 // app/Http/Requests/StoreAccountRequest.php
 class StoreAccountRequest extends FormRequest {
     public function authorize(): bool {
         return true; // Or check permissions
     }
-    
+
     public function rules(): array {
         return [
             'account_type_id' => 'required|exists:account_types,id',
@@ -566,7 +581,7 @@ class StoreAccountRequest extends FormRequest {
             'balance' => 'required|numeric|min:0',
         ];
     }
-    
+
     public function messages(): array {
         return [
             'account_type_id.required' => 'Please select an account type',
@@ -577,6 +592,7 @@ class StoreAccountRequest extends FormRequest {
 ```
 
 ### 4. Use Resource Classes for JSON
+
 ```php
 // app/Http/Resources/AccountResource.php
 class AccountResource extends JsonResource {
@@ -595,6 +611,7 @@ class AccountResource extends JsonResource {
 ```
 
 ### 5. Eager Load Relationships
+
 ```php
 // ❌ N+1 PROBLEM
 foreach (Account::all() as $account) {
@@ -608,6 +625,7 @@ foreach (Account::with('user')->get() as $account) {
 ```
 
 ### 6. Use Database Transactions
+
 ```php
 DB::transaction(function () {
     $transaction = Transaction::create([...]);
@@ -618,19 +636,20 @@ DB::transaction(function () {
 ```
 
 ### 7. Test Everything
+
 ```php
 // tests/Feature/CreateTransactionTest.php
 class CreateTransactionTest extends TestCase {
     public function test_user_can_create_transaction() {
         $user = User::factory()->create();
         $account = Account::factory()->for($user)->create();
-        
+
         $response = $this->actingAs($user)->postJson('/api/v1/transactions', [
             'account_id' => $account->id,
             'amount' => 50,
             'type' => 'expense',
         ]);
-        
+
         $response->assertStatus(201);
         $this->assertDatabaseHas('transactions', [
             'account_id' => $account->id,
@@ -674,22 +693,23 @@ Internet
 
 ## Technology Stack Summary
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **Backend** | Laravel 13 | Web framework |
-| **Language** | PHP 8.3+ | Server-side logic |
-| **Database** | MySQL 8+ | Data storage |
-| **Cache** | Redis | Performance |
-| **Queue** | Redis | Background jobs |
-| **Auth** | Sanctum | API tokens |
-| **Frontend** | Vite + TailwindCSS | UI bundling |
-| **Testing** | PHPUnit | Quality assurance |
-| **Package Mgr** | Composer | PHP packages |
-| **Node Mgr** | npm | Frontend packages |
+| Component       | Technology         | Purpose           |
+| --------------- | ------------------ | ----------------- |
+| **Backend**     | Laravel 13         | Web framework     |
+| **Language**    | PHP 8.3+           | Server-side logic |
+| **Database**    | MySQL 8+           | Data storage      |
+| **Cache**       | Redis              | Performance       |
+| **Queue**       | Redis              | Background jobs   |
+| **Auth**        | Sanctum            | API tokens        |
+| **Frontend**    | Vite + TailwindCSS | UI bundling       |
+| **Testing**     | PHPUnit            | Quality assurance |
+| **Package Mgr** | Composer           | PHP packages      |
+| **Node Mgr**    | npm                | Frontend packages |
 
 ---
 
 For implementation details, see:
+
 - [Setup Guide](SETUP.md)
 - [API Reference](API.md)
 - [Development Standards](DEVELOPMENT.md)

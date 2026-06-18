@@ -27,6 +27,8 @@ class ProfileController extends Controller
             'phone_number' => $user->phone_number,
             'avatar_url' => $user->avatar_url,
             'default_currency' => $user->default_currency,
+            'language' => $user->preferred_language ?? 'fr',
+            'role' => $user->role ?? 'user',
             'email_verified_at' => $user->email_verified_at,
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,

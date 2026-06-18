@@ -33,21 +33,21 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Generate email verification token
-        $token = \Illuminate\Support\Str::random(60);
+        // Generate email verification code (6 digits)
+        $code = $this->generateSixDigitCode();
 
-        // Store the verification token
+        // Store the verification code
         \DB::table('email_verification_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
                 'email' => $request->email,
-                'token' => Hash::make($token),
+                'token' => Hash::make($code),
                 'created_at' => now(),
             ]
         );
 
         // Send verification email
-        $user->notify(new EmailVerificationNotification($token));
+        $user->notify(new EmailVerificationNotification($code));
 
         return response()->json([
             'message' => 'Registration successful. Please check your email to verify your account.',
@@ -108,24 +108,24 @@ class AuthController extends Controller
             ]);
         }
 
-        // Generate a password reset token
-        $token = \Illuminate\Support\Str::random(60);
+        // Generate a 6-digit password reset code
+        $code = $this->generateSixDigitCode();
 
-        // Store the token in password_resets table
+        // Store the code in password_reset_tokens table
         \DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
                 'email' => $request->email,
-                'token' => Hash::make($token),
+                'token' => Hash::make($code),
                 'created_at' => now(),
             ]
         );
 
-        // Send the token via email
-        $user->notify(new PasswordResetNotification($token));
+        // Send the code via email
+        $user->notify(new PasswordResetNotification($code));
 
         return response()->json([
-            'message' => 'Password reset link sent to your email.',
+            'message' => 'Un code de réinitialisation à 6 chiffres a été envoyé à votre adresse email.',
         ]);
     }
 
@@ -134,26 +134,26 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|string|email',
-            'token' => 'required|string',
+            'token' => 'required|string|digits:6',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Find the reset token
+        // Find the reset code
         $resetToken = \DB::table('password_reset_tokens')
             ->where('email', $request->email)
             ->first();
 
         if (!$resetToken || !Hash::check($request->token, $resetToken->token)) {
             throw ValidationException::withMessages([
-                'token' => ['Invalid or expired reset token.'],
+                'token' => ['Code de réinitialisation invalide ou expiré.'],
             ]);
         }
 
-        // Check if token is expired (10 minutes)
+        // Check if code is expired (10 minutes)
         if (now()->diffInMinutes($resetToken->created_at) > 10) {
             \DB::table('password_reset_tokens')->where('email', $request->email)->delete();
             throw ValidationException::withMessages([
-                'token' => ['Reset token has expired.'],
+                'token' => ['Le code de réinitialisation a expiré.'],
             ]);
         }
 
@@ -175,25 +175,25 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|string|email',
-            'token' => 'required|string',
+            'token' => 'required|string|digits:6',
         ]);
 
-        // Find the verification token
+        // Find the verification code
         $verificationToken = \DB::table('email_verification_tokens')
             ->where('email', $request->email)
             ->first();
 
         if (!$verificationToken || !Hash::check($request->token, $verificationToken->token)) {
             throw ValidationException::withMessages([
-                'token' => ['Invalid or expired verification token.'],
+                'token' => ['Code de vérification invalide ou expiré.'],
             ]);
         }
 
-        // Check if token is expired (60 minutes)
+        // Check if code is expired (60 minutes)
         if (now()->diffInMinutes($verificationToken->created_at) > 60) {
             \DB::table('email_verification_tokens')->where('email', $request->email)->delete();
             throw ValidationException::withMessages([
-                'token' => ['Verification token has expired.'],
+                'token' => ['Le code de vérification a expiré.'],
             ]);
         }
 
@@ -207,6 +207,44 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Email verified successfully.',
+        ]);
+    }
+
+    public function resendVerificationEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => ['Aucun compte trouvé avec cette adresse email.'],
+            ]);
+        }
+
+        if ($user->email_verified_at) {
+            return response()->json([
+                'message' => 'Cette adresse email est déjà vérifiée.',
+            ]);
+        }
+
+        $code = $this->generateSixDigitCode();
+
+        \DB::table('email_verification_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'token' => Hash::make($code),
+                'created_at' => now(),
+            ]
+        );
+
+        $user->notify(new EmailVerificationNotification($code));
+
+        return response()->json([
+            'message' => 'Un nouveau code de vérification a été envoyé à votre adresse email.',
         ]);
     }
 
@@ -355,5 +393,10 @@ class AuthController extends Controller
         return response()->json([
             'message' => '2FA disabled successfully.',
         ]);
+    }
+
+    private function generateSixDigitCode(): string
+    {
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 }

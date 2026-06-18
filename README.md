@@ -5,6 +5,7 @@ VisionCash is a comprehensive personal finance management platform built with La
 ## 🎯 Features
 
 ### Core Functionality
+
 - **Account Management** - Multiple account types (bank, credit card, digital wallets)
 - **Transaction Tracking** - Income, expenses, transfers with categorization
 - **Budget Planning** - Set budgets by category with spend alerts
@@ -14,6 +15,7 @@ VisionCash is a comprehensive personal finance management platform built with La
 - **Report Generation** - Export detailed financial reports
 
 ### User Features
+
 - **Multi-Factor Authentication (MFA)** - Enhanced security
 - **Notification System** - Email, SMS, push notifications with preferences
 - **Subscription Management** - Handle SaaS subscriptions with invoicing
@@ -25,21 +27,22 @@ VisionCash is a comprehensive personal finance management platform built with La
 
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|-----------|-----------|
-| **Backend** | Laravel 13.8, PHP 8.3+ |
-| **Database** | MySQL 8+ / PostgreSQL (SQLite for dev) |
-| **Authentication** | Laravel Sanctum (API tokens) |
-| **Frontend** | Vite, TailwindCSS 4, Node.js |
-| **Testing** | PHPUnit 12.5, Mockery |
-| **Code Quality** | Pint (Laravel linter) |
-| **Dev Tools** | Artisan CLI, Tinker, Pail |
+| Component          | Technology                             |
+| ------------------ | -------------------------------------- |
+| **Backend**        | Laravel 13.8, PHP 8.3+                 |
+| **Database**       | MySQL 8+ / PostgreSQL (SQLite for dev) |
+| **Authentication** | Laravel Sanctum (API tokens)           |
+| **Frontend**       | Vite, TailwindCSS 4, Node.js           |
+| **Testing**        | PHPUnit 12.5, Mockery                  |
+| **Code Quality**   | Pint (Laravel linter)                  |
+| **Dev Tools**      | Artisan CLI, Tinker, Pail              |
 
 ---
 
 ## 📋 Quick Start
 
 ### Prerequisites
+
 - PHP 8.3+
 - Composer 2+
 - Node.js 18+
@@ -48,6 +51,7 @@ VisionCash is a comprehensive personal finance management platform built with La
 ### Installation
 
 1. **Clone and setup**
+
 ```bash
 git clone <repo-url> visioncash
 cd visioncash
@@ -56,12 +60,14 @@ npm install
 ```
 
 2. **Generate app key**
+
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
 3. **Configure database**
+
 ```bash
 # Edit .env with your database credentials
 DB_CONNECTION=mysql
@@ -73,16 +79,19 @@ DB_PASSWORD=
 ```
 
 4. **Run migrations**
+
 ```bash
 php artisan migrate
 ```
 
 5. **Seed sample data** (optional)
+
 ```bash
 php artisan db:seed
 ```
 
 6. **Start development server**
+
 ```bash
 # Terminal 1: Laravel backend
 php artisan serve
@@ -98,6 +107,7 @@ php artisan pail --timeout=0
 ```
 
 Or use the convenient composer script:
+
 ```bash
 composer run dev
 ```
@@ -107,33 +117,39 @@ composer run dev
 ## 🗄️ Database Models
 
 ### Authentication & Users
+
 - **User** - Application users with profile info
 - **MfaToken** - Multi-factor authentication tokens
 - **UserSession** - Active user sessions
 - **PasswordReset** - Password reset tokens
 
 ### Financial Accounts
+
 - **Account** - Bank/payment accounts
 - **AccountType** - Account type definitions (Savings, Checking, CC, etc)
 - **AccountBalanceHistory** - Historical balance snapshots
 
 ### Transactions & Categories
+
 - **Transaction** - Individual transactions (income/expense)
 - **TransactionAttachment** - File attachments (receipts, invoices)
 - **Category** - Transaction categories
 - **RecurringTransaction** - Automated recurring transactions
 
 ### Budgets & Planning
+
 - **Budget** - Budget allocations by category
 - **BudgetHistory** - Historical budget tracking
 
 ### Integrations & Sync
+
 - **Integration** - Bank provider connections
 - **Provider** - Third-party provider definitions
 - **SyncLog** - Sync operation logs
 - **CsvImport** - CSV import records
 
 ### Notifications
+
 - **Notification** - System notifications
 - **NotificationChannel** - Notification delivery channels (email, SMS, push)
 - **NotificationLog** - Notification delivery logs
@@ -141,6 +157,7 @@ composer run dev
 - **UserNotification** - User notification history
 
 ### Subscriptions & Billing
+
 - **Plan** - Subscription plans
 - **Subscription** - User subscriptions
 - **Invoice** - Invoices/billing documents
@@ -149,6 +166,7 @@ composer run dev
 - **CouponPlan** - Coupon-plan associations
 
 ### Reports
+
 - **ReportExport** - Exported financial reports
 
 ---
@@ -156,11 +174,13 @@ composer run dev
 ## 🔌 API Endpoints
 
 ### Base URL
+
 ```
 http://localhost:8000/api/v1
 ```
 
 ### Authentication
+
 API requests require a Bearer token obtained via login. See [docs/API.md](docs/API.md) for complete documentation.
 
 ---

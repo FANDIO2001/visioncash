@@ -3,6 +3,7 @@
 Complete step-by-step guide to set up VisionCash for development and production environments.
 
 ## Table of Contents
+
 1. [Development Setup](#development-setup)
 2. [Production Deployment](#production-deployment)
 3. [Database Setup](#database-setup)
@@ -15,13 +16,13 @@ Complete step-by-step guide to set up VisionCash for development and production 
 ### System Requirements
 
 - **PHP 8.3+** with extensions:
-  - `php-sqlite3` or `php-mysql`
-  - `php-json`
-  - `php-curl`
-  - `php-xml`
-  - `php-mbstring`
-  - `php-zip`
-  - `php-bcmath`
+    - `php-sqlite3` or `php-mysql`
+    - `php-json`
+    - `php-curl`
+    - `php-xml`
+    - `php-mbstring`
+    - `php-zip`
+    - `php-bcmath`
 
 - **Node.js 18+** with npm
 
@@ -43,6 +44,7 @@ composer install
 ```
 
 If you encounter issues, try:
+
 ```bash
 composer install --no-interaction --prefer-dist
 ```
@@ -54,6 +56,7 @@ cp .env.example .env
 ```
 
 Edit `.env` with your configuration:
+
 ```env
 APP_NAME="VisionCash"
 APP_DEBUG=true
@@ -83,16 +86,19 @@ npm install
 ### Step 6: Run Database Migrations
 
 Create the database first (MySQL only):
+
 ```bash
 mysql -u root -p -e "CREATE DATABASE visioncash CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
 Then run migrations:
+
 ```bash
 php artisan migrate
 ```
 
 You should see:
+
 ```
 Migrating: 0001_01_01_000000_create_users_table
 Migrated:  0001_01_01_000000_create_users_table (123.45ms)
@@ -110,11 +116,13 @@ This populates the database with sample users, accounts, and transactions for te
 ### Step 8: Run Development Server
 
 Use the all-in-one command:
+
 ```bash
 composer run dev
 ```
 
 This starts:
+
 - **Laravel server** on `http://localhost:8000`
 - **Vite dev server** for frontend
 - **Queue worker** for background jobs
@@ -123,23 +131,29 @@ This starts:
 Or run separately:
 
 **Terminal 1 - Laravel Backend:**
+
 ```bash
 php artisan serve
 ```
+
 Access at `http://localhost:8000`
 
 **Terminal 2 - Frontend Development:**
+
 ```bash
 npm run dev
 ```
+
 Vite will be available at `http://localhost:5173`
 
 **Terminal 3 - Queue Worker:**
+
 ```bash
 php artisan queue:listen --tries=1 --timeout=0
 ```
 
 **Terminal 4 - Log Viewer:**
+
 ```bash
 php artisan pail --timeout=0
 ```
@@ -147,6 +161,7 @@ php artisan pail --timeout=0
 ### Step 9: Verify Installation
 
 Test the API:
+
 ```bash
 curl http://localhost:8000/api/v1/user \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
@@ -172,6 +187,7 @@ curl http://localhost:8000/api/v1/user \
 #### 1. Set Up Web Server (Nginx/Apache)
 
 **Nginx Configuration Example:**
+
 ```nginx
 server {
     listen 80;
@@ -214,6 +230,7 @@ nano .env
 ```
 
 Production `.env` example:
+
 ```env
 APP_ENV=production
 APP_DEBUG=false
@@ -283,6 +300,7 @@ sudo chmod -R 775 storage bootstrap/cache
 #### 9. Setup Queue Worker
 
 Create `/etc/supervisor/conf.d/visioncash-worker.conf`:
+
 ```ini
 [program:visioncash-worker]
 process_name=%(program_name)s_%(process_num)02d
@@ -295,6 +313,7 @@ stdout_logfile=/var/log/visioncash-worker.log
 ```
 
 Start:
+
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
@@ -304,11 +323,13 @@ sudo supervisorctl start visioncash-worker:*
 #### 10. Setup Scheduled Tasks
 
 Add to crontab:
+
 ```bash
 sudo crontab -e
 ```
 
 Add:
+
 ```
 * * * * * cd /var/www/visioncash && php artisan schedule:run >> /dev/null 2>&1
 ```
@@ -329,6 +350,7 @@ Update Nginx config to use SSL.
 ### MySQL Setup
 
 1. **Create User:**
+
 ```sql
 CREATE USER 'visioncash'@'localhost' IDENTIFIED BY 'strong_password';
 GRANT ALL PRIVILEGES ON visioncash.* TO 'visioncash'@'localhost';
@@ -336,11 +358,13 @@ FLUSH PRIVILEGES;
 ```
 
 2. **Create Database:**
+
 ```sql
 CREATE DATABASE visioncash CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 3. **Verify:**
+
 ```bash
 mysql -u visioncash -p visioncash -e "SELECT 1;"
 ```
@@ -384,6 +408,7 @@ php artisan migrate:status
 **Problem:** `composer install` fails
 
 **Solutions:**
+
 ```bash
 # Clear composer cache
 composer clear-cache
@@ -403,6 +428,7 @@ composer install --no-interaction --prefer-dist
 **Problem:** Storage/Bootstrap directory not writable
 
 **Solution:**
+
 ```bash
 # Linux/Mac
 chmod -R 775 storage bootstrap/cache
@@ -418,6 +444,7 @@ sudo chmod -R 775 storage bootstrap/cache
 **Problem:** `SQLSTATE[HY000]: General error: 14 unable to open database file`
 
 **Solution:** Ensure `database` directory exists:
+
 ```bash
 mkdir -p database
 touch database/database.sqlite
@@ -427,6 +454,7 @@ php artisan migrate
 **Problem:** MySQL connection refused
 
 **Solutions:**
+
 1. Check MySQL is running: `mysql -u root -p`
 2. Verify credentials in `.env`
 3. Ensure database exists: `mysql -u root -p -e "CREATE DATABASE visioncash;"`
@@ -436,6 +464,7 @@ php artisan migrate
 **Problem:** `npm run build` fails
 
 **Solution:**
+
 ```bash
 # Clear node_modules
 rm -rf node_modules package-lock.json
@@ -452,6 +481,7 @@ npm run build
 **Problem:** `php artisan key:generate` fails
 
 **Solution:**
+
 ```bash
 # Generate manually
 php artisan key:generate --show
@@ -465,6 +495,7 @@ APP_KEY=base64:xxxxx
 **Problem:** Routes not working after deployment
 
 **Solution:**
+
 ```bash
 # Clear route cache
 php artisan route:clear

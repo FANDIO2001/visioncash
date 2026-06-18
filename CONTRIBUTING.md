@@ -23,6 +23,7 @@ Be respectful, inclusive, and professional. We're all here to build something gr
 See [SETUP.md - Development Setup](docs/SETUP.md#development-setup) for complete instructions.
 
 Quick start:
+
 ```bash
 git clone https://github.com/YOUR-USERNAME/visioncash.git
 cd visioncash
@@ -49,13 +50,13 @@ use App\Models\User;
 
 // PascalCase for classes
 class UserController {
-    
+
     // camelCase for methods
     public function getUserProfile(): UserResource {
         // 4-space indentation
         // Max 120 characters per line
     }
-    
+
     // Always use type hints
     private function validateUser(User $user): bool {
         return $user->is_active;
@@ -64,6 +65,7 @@ class UserController {
 ```
 
 ### Naming Conventions
+
 - Classes: `PascalCase` (UserController, CreateAccountRequest)
 - Methods: `camelCase` (getUserAccounts)
 - Properties: `camelCase` ($userName)
@@ -71,6 +73,7 @@ class UserController {
 - Constants: `UPPER_SNAKE_CASE` (MAX_ATTEMPTS)
 
 ### Comments
+
 ```php
 // Use comments to explain WHY, not WHAT
 // ✅ GOOD
@@ -110,14 +113,14 @@ use App\Models\User;
 use Tests\TestCase;
 
 class CreateAccountTest extends TestCase {
-    
+
     /**
      * @test
      * User can create new account
      */
     public function user_can_create_account() {
         $user = User::factory()->create();
-        
+
         $response = $this->actingAs($user)
             ->postJson('/api/v1/accounts', [
                 'account_name' => 'Savings',
@@ -125,7 +128,7 @@ class CreateAccountTest extends TestCase {
                 'currency' => 'USD',
                 'balance' => 5000,
             ]);
-        
+
         $response->assertStatus(201);
         $this->assertDatabaseHas('accounts', [
             'user_id' => $user->id,
@@ -153,6 +156,7 @@ chore: Update dependencies
 ```
 
 ### Types
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `refactor` - Code refactoring
@@ -161,6 +165,7 @@ chore: Update dependencies
 - `chore` - Dependencies, config
 
 ### Examples
+
 ```
 ✅ GOOD
 feat: Add recurring transaction support
@@ -179,12 +184,14 @@ Changes
 ## Pull Request Process
 
 1. **Update from main**
+
 ```bash
 git fetch origin
 git rebase origin/main
 ```
 
 2. **Test your changes**
+
 ```bash
 composer test
 composer pint  # Check code style
@@ -192,25 +199,31 @@ php artisan optimize
 ```
 
 3. **Push and create PR**
+
 ```bash
 git push origin feature/your-feature
 ```
 
 4. **PR Template**
+
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] New feature
 - [ ] Bug fix
 - [ ] Breaking change
 - [ ] Documentation
 
 ## Testing
+
 Describe how you tested this change
 
 ## Checklist
+
 - [ ] Tests pass: `composer test`
 - [ ] Code is formatted: `composer pint`
 - [ ] Documentation updated
@@ -286,12 +299,14 @@ git push origin feature/add-categories
 ## Code Review Process
 
 ### For Authors
+
 - Keep PRs focused and manageable
 - Explain complex changes
 - Respond to feedback constructively
 - Update PR based on review comments
 
 ### For Reviewers
+
 - Check functionality and design
 - Ensure tests are comprehensive
 - Verify code follows standards
@@ -409,6 +424,7 @@ Have an idea? Create an issue with:
 ## Recognition
 
 Contributors are recognized in:
+
 - Git commit history
 - Project README
 - Release notes
